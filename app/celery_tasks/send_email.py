@@ -42,10 +42,8 @@ def send_reminder_order_email_task():
             chunk_customers_data = [serialized_non_buying_customers_list[i:i + chunk_size] for i in range(0, len(serialized_non_buying_customers_list), chunk_size)]
     
             chunk_customer_email_tasks = [
-                group(
-                    send_reminder_order_email_to_chunk_customers_task.s(chunks_customer)
-                    for chunks_customer in chunk_customers_data
-                )
+                send_reminder_order_email_to_chunk_customers_task.s(chunks_customer)
+                for chunks_customer in chunk_customers_data
             ]
             group(chunk_customer_email_tasks).apply_async()
 
@@ -58,10 +56,8 @@ def send_reminder_order_email_task():
 def send_reminder_order_email_to_chunk_customers_task(chunk_customers: list[dict]):
     try:
         customer_email_tasks = [
-            group(
-                send_welcome_email_task.s(mail_to=customer['email'], mail_data=mail_data)
-                for customer in chunk_customers
-            )
+            send_welcome_email_task.s(mail_to=customer['email'], mail_data=mail_data)
+            for customer in chunk_customers
         ]
         group(customer_email_tasks).apply_async()
     except Exception as e:
