@@ -25,24 +25,28 @@ def send_reminder_order_email_task():
         # Connecting db
         connect()
 
-        # Get users who need to send reminder email
-        non_buying_customers = user_repository.get_user_has_not_order()
-        chunk_customers_data = []
-
-        # Number of mails sending in parallel
+        page_size = 100
         chunk_size = 10
 
-        # Chunk data
-        for i in range(0, len(non_buying_customers), chunk_size):
-            chunk_customers_data.append(non_buying_customers[i:i + chunk_size])
+        total_users_count = user_repository.get_total_non_buying_users()
 
-        # Sending email
-        for chunk_customers_item in chunk_customers_data:
-            email_tasks = [
-                send_welcome_email_task.s(mail_to=customer.email, mail_data=mail_data)
-                for customer in chunk_customers_item
+        total_pages = (total_users_count + page_size - 1) // page_size
+        for x in range(0, total_pages):
+            chunk_customers_data = []
+            non_buying_customers = user_repository.get_users_has_not_order(page_index=x+1, page_size=page_size)
+
+            chunk_customers_data = [non_buying_customers[i:i + chunk_size] for i in range(0, len(non_buying_customers), chunk_size)]
+            
+            email_tasks_groups = [
+                group(
+                    send_welcome_email_task.s(mail_to=customer.email, mail_data=mail_data)
+                    for customer in chunk_customers_item
+                )
+                for chunk_customers_item in chunk_customers_data
             ]
-            group(email_tasks).apply_async()
+
+            group(email_tasks_groups).apply_async()
+
         
     except Exception as e:
         print(f"Send email failed!: {str(e)}")

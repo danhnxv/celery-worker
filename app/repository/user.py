@@ -17,12 +17,13 @@ class UserRepository:
             print(f"Create user failed: {str(e)}")
             return []
     
-    def get_user_has_not_order(self) -> List[UserModel]:
+    def get_users_has_not_order(self, page_index: int = 1, page_size: int = 100) -> List[UserModel]:
         try:
-            users = UserModel._get_collection().find({"ordered": False})
+            skip_count = (page_index - 1) * page_size
+            users = UserModel._get_collection().find().skip(skip_count).limit(page_size)
             return [UserModel.from_mongo(user) for user in users] if users else []
         except Exception as e:
-            print(f"Retrieving non buying users failed: {str(e)}")
+            print(f"Retrieving non-buying users failed: {str(e)}")
             return []
     
     def get_user_by_email(self, email: str) -> Optional[UserInDB]:
@@ -32,5 +33,17 @@ class UserRepository:
         except DoesNotExist:
             return None
         return UserInDB.model_validate(user)
+    
+    def get_total_non_buying_users(self) -> int:
+        try:
+            total_non_buying_users = UserModel._get_collection().count_documents({"ordered": False})
+            print("total_non_buying_users", total_non_buying_users)
+            return total_non_buying_users
+        except Exception as e:
+            print(f"Error getting total non-buying users: {str(e)}")
+            return 0
+        
+    
+    
 
 user_repository = UserRepository()

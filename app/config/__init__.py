@@ -44,7 +44,7 @@ class CelerySettings(BaseSettings):
     beat_schedule: Dict[str, dict] = {
         "send-reminder-email": {
             "task": "app.celery_tasks.send_email.send_reminder_order_email_task",
-            "schedule": crontab(hour=9, minute=45),
+            "schedule": crontab(hour=0, minute=0),
         },
     }
     
