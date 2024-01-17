@@ -13,6 +13,16 @@ mail_data = {
     "body": "Welcome!!!!"
 }
 
+@router.get("", response_model=List[UserInDB])
+async def get_users(page_index: Optional[int] = 1, page_size: Optional[int] = 100, user_repository: UserRepository = Depends(UserRepository)):
+    try:
+        existing_user = user_repository.get_users_has_not_order(page_index=page_index, page_size=page_size)
+        return existing_user
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        return {"Error": str(e)}
+
 @router.post("")
 async def create_user(user: UserBase = Body(...), user_repository: UserRepository = Depends(UserRepository)):
     try:
