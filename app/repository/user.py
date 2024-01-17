@@ -37,7 +37,6 @@ class UserRepository:
     def get_total_non_buying_users(self) -> int:
         try:
             total_non_buying_users = UserModel._get_collection().count_documents({"ordered": False})
-            print("total_non_buying_users", total_non_buying_users)
             return total_non_buying_users
         except Exception as e:
             print(f"Error getting total non-buying users: {str(e)}")

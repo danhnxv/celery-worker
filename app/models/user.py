@@ -15,6 +15,12 @@ class User(Document):
 
     def save(self, *args, **kwargs):
         return super(User, self).save(*args, **kwargs)
+    
+    def to_dict(self):
+        return {
+            'email': self.email,
+            'ordered': self.ordered
+        }
 
     meta = {
         "collection": "Users",
