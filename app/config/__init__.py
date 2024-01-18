@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
 
-    API_PORT: Optional[int] = 8000
+    API_PORT: Optional[int]
 
     BACKEND_CORS_ORIGINS: List[str] = []
 
