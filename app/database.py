@@ -12,7 +12,7 @@ def connect() -> None:
             port=settings.MONGODB_PORT,
             username=settings.MONGODB_USERNAME,
             password=settings.MONGODB_PASSWORD,
-            authentication_source=settings.MONGODB_DATABASE,
+            # authentication_source=settings.MONGODB_DATABASE,
             alias="default",
         )
 
